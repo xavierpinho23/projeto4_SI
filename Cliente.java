@@ -23,8 +23,13 @@ public class Cliente implements Serializable
 			Interface DEI = (Interface) registry.lookup("evento");
 
 			//let's execute our remote operation and keep the return value in 'result'!
-			while (registando) {
+			
 				System.out.println("Bem-vindo ao DEI!");
+				System.out.println("Nome: ");
+				String resposta = scan.nextLine();
+				String responsavel = resposta;
+				ClienteObj cliente = new ClienteObj(responsavel);
+				while (registando) {
 				System.out.print("Deseja:\n"
 						+ "[1] - Adicionar um evento a uma sala.\n"
 						+ "[2] - Atualizar evento.\n"
@@ -32,7 +37,7 @@ public class Cliente implements Serializable
 						+ "[4] - Percentagem de ocupação.\n"
 						+ "[5] - Consultar o número de reservas efetuadas pelos utilizadores."
 						+ "\n[6] - Consultar o número de reservas para um certo utilizador num certo período temporal.\n");
-				String resposta = scan.nextLine();
+				resposta = scan.nextLine();
 				if (resposta.equals("1")) {
 					System.out.println("Que sala deseja (LNN)?");
 					resposta = scan.nextLine();
@@ -52,19 +57,33 @@ public class Cliente implements Serializable
 					LocalDateTime finalDateTime = dateTime.plusMinutes(Integer.parseInt(str2[1]));
 					finalDateTime = finalDateTime.plusHours(Integer.parseInt(str2[0]));
 					
-					System.out.println("Responsável:");
-					resposta = scan.nextLine();
-					String responsavel = resposta;
-					
 					System.out.println("Adicione uma descrição ao evento:");
 					resposta = scan.nextLine();
 					String descricao = resposta;
 					
-					Evento evento = new Evento(sala,dateTime,finalDateTime,responsavel,descricao);
-					DEI.adicionaEvento(evento);
+					DEI.adicionaEvento(sala,dateTime,finalDateTime,responsavel,descricao,cliente);
 					
 			}
-				if (resposta.equals("5")) {
+				else if (resposta.equals("2")) {
+					System.out.println(DEI.obterEventosCliente(cliente));
+					System.out.println("Sala: ");
+					resposta = scan.nextLine();
+					String sala = resposta;
+					
+					System.out.println("Data de Início (aaaa-MM-dd): ");
+					resposta = scan.nextLine();
+					String str = resposta;
+					System.out.println("A partir de que horas estava reservada a sala (HH:mm)?");
+					resposta = scan.nextLine();
+					String horasInicio = resposta;
+					str = str + " " + resposta;
+					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+					LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+					
+					
+					
+				}
+				else if (resposta.equals("5")) {
 					System.out.println(DEI.consNumReservas());
 				}
 				

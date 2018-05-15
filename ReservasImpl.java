@@ -3,6 +3,7 @@ package projeto4_SI;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 
@@ -15,12 +16,15 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 		{
 		}
 
-		public void adicionaEvento(Evento evento) throws Exception
+		public void adicionaEvento(String sala, LocalDateTime dateTime,LocalDateTime finalDateTime,String responsavel,String descricao, ClienteObj cliente) throws Exception
 		{
+			Evento evento = new Evento(sala,dateTime,finalDateTime,responsavel,descricao);
 			boolean adicionar = true;
 			if (listaEventos.isEmpty()) {
 				listaEventos.add(evento);
 				System.out.println("Evento adicionado com sucesso!");
+				cliente.addEventosDoCliente(evento);
+				
 			}
 			else {
 				for (int i=0;i<listaEventos.size();i++) {
@@ -43,9 +47,21 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 			}
 		}
 
-		public String atualizaEvento() throws Exception
+		public String atualizaEvento(ClienteObj cliente) throws Exception
 		{
 			return null;
+		}
+		public boolean encontrarEvento(ClienteObj cliente, String sala, LocalDateTime dataInicio) {
+			if (cliente.getEventosDoCliente(sala, dataInicio).equals(null)) {
+				return false;
+			}
+			else {
+				return true;
+			}
+		}
+		public String obterEventosCliente(ClienteObj cliente) throws Exception
+		{
+			return cliente.getEventosDoClienteToString();
 		}
 
 		public String removeEvento() throws Exception
