@@ -1,27 +1,33 @@
-package projeto4_SI;
+package RMI_Avaliacao;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 
-public class ClienteObj
+public class ClienteObj implements Serializable
 {
 	private String nome;
 	private ArrayList<Evento> eventosDoCliente = new ArrayList<Evento>();
 	
+	//Construtor Cliente
 	public ClienteObj(String nome) {
 		this.nome=nome;
 	}
-
+	//Método para aceder ao nome do cliente
 	public String getNome()
 	{
 		return nome;
 	}
+	//Método para aceder à lista de eventos do cliente
 	public Evento getEventosDoCliente(String sala, LocalDateTime dataInicio) 
 	{
 		boolean eventoEncontrado = false;
 		Evento evento = null;
-		for (int i = 0;i<eventosDoCliente.size();i++) {
-			if (sala.equals(eventosDoCliente.get(i).getSala()) && dataInicio.equals(eventosDoCliente.get(i).getHoraInicio())) {
+		
+		for (int i = 0;i<eventosDoCliente.size();i++) 
+		{
+			if (sala.equals(eventosDoCliente.get(i).getSala()) && dataInicio.equals(eventosDoCliente.get(i).getHoraInicio())) 
+			{
 				eventoEncontrado = true;
 				evento = eventosDoCliente.get(i);
 			}
@@ -34,7 +40,7 @@ public class ClienteObj
 			return null;
 		}
 	}
-
+	//Método para mostrar a lista de eventos do cliente
 	public String getEventosDoClienteToString()
 	{
 		String str = "";
@@ -48,9 +54,21 @@ public class ClienteObj
 		}
 		return str;
 	}
-
+	//Método para adicionar eventos à lista de eventos do cliente
 	public void addEventosDoCliente(Evento evento)
 	{
 		this.eventosDoCliente.add(evento);
+		System.out.println(eventosDoCliente.toString());
+	}
+	//Método para remover eventos da lista de eventos do cliente
+	public void removeEventosDoCliente(String sala, LocalDateTime dataInicio)
+	{
+		for (int i = 0; i < eventosDoCliente.size(); i++)
+		{
+			if (sala.equals(eventosDoCliente.get(i).getSala()) && dataInicio.equals(eventosDoCliente.get(i).getHoraInicio())) 
+			{
+				eventosDoCliente.remove(i);
+			}
+		}
 	}
 }
