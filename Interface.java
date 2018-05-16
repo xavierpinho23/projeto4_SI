@@ -1,4 +1,4 @@
-package projeto4_SI;
+package RMI_Avaliacao;
 
 import java.rmi.Remote;
 import java.time.LocalDateTime;

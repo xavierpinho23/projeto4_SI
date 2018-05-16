@@ -1,4 +1,4 @@
-package projeto4_SI;
+package RMI_Avaliacao;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -23,7 +23,12 @@ public class ClienteObj implements Serializable
 	{
 		boolean eventoEncontrado = false;
 		Evento evento = null;
-		
+		////
+		if (eventosDoCliente.isEmpty())
+		{
+			return null;
+		}
+		////
 		for (int i = 0;i<eventosDoCliente.size();i++) 
 		{
 			if (sala.equals(eventosDoCliente.get(i).getSala()) && dataInicio.equals(eventosDoCliente.get(i).getHoraInicio())) 
@@ -40,16 +45,17 @@ public class ClienteObj implements Serializable
 			return null;
 		}
 	}
+
 	//Método para mostrar a lista de eventos do cliente
 	public String getEventosDoClienteToString()
 	{
 		String str = "";
 		if (eventosDoCliente.isEmpty()) {
-			str = "Não existem eventos agendados.";
+			str = "Não existem eventos agendados por si. \n";
 		}
 		else {
 			for (int i = 0;i<eventosDoCliente.size();i++) {
-				str= str + "Sala: " + eventosDoCliente.get(i).getSala() + ". Das: " + eventosDoCliente.get(i).getHoraInicio().toString() + " às: " + eventosDoCliente.get(i).getHoraFim().toString()+ ".\n";
+				str= str + "Sala: " + eventosDoCliente.get(i).getSala() + ". Inicio: " + eventosDoCliente.get(i).getHoraInicio().toString() + " Fim: " + eventosDoCliente.get(i).getHoraFim().toString()+ ".\n";
 			}
 		}
 		return str;
