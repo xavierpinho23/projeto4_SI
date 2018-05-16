@@ -1,32 +1,36 @@
-package RMI_Avaliacao;
-
+package projeto4_SI;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ReservasImpl extends UnicastRemoteObject implements Interface, Serializable
 	{
 
 		ArrayList<Evento> listaEventos = new ArrayList<Evento>();
+		ClienteObj cliente;
+		ArrayList<String> salas = new ArrayList<String>(Arrays.asList("A01","A02","A03","B01","B02","B03","C01","C02","C03","D01","D02","D03"));
 		
-		//Porque isto?
 		protected ReservasImpl() throws RemoteException
 		{
 		}
 		//Método para adicionar eventos
-		public void adicionaEvento(String sala, LocalDateTime dateTime,LocalDateTime finalDateTime,String responsavel,String descricao, ClienteObj cliente) throws Exception
+		public String adicionaEvento(String sala, LocalDateTime dateTime,LocalDateTime finalDateTime,String responsavel,String descricao) throws Exception
 		{
 			Evento evento = new Evento(sala,dateTime,finalDateTime,responsavel,descricao);
 			boolean adicionar = true;
-			if (listaEventos.isEmpty()) 
+			if (listaEventos.isEmpty() && salas.contains(sala)) 
 			{
 				listaEventos.add(evento);
-				System.out.println("Evento adicionado com sucesso!");
 				cliente.addEventosDoCliente(evento);
+				System.out.println("Evento adicionado");
+				return "Evento adicionado com sucesso";
+				
 			}
-			else {
+			else if (salas.contains(sala)){
 				for (int i=0;i<listaEventos.size();i++) 
 				{
 					if (listaEventos.get(i).getSala().equals(evento.getSala())) 
@@ -42,20 +46,33 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 						}
 					}
 				}
+					
+				
 				if (adicionar) 
 				{
-					listaEventos.add(evento);
 					cliente.addEventosDoCliente(evento);
-					System.out.println("Evento adicionado com sucesso!");
+					listaEventos.add(evento);
+					System.out.println("Evento adicionado");
+					return "Evento adicionado com sucesso";
+					
+					
 				}
 				else 
 				{
-					System.out.println("Sala indisponível nesse horário.");
+					System.out.println("horário");
+					return "Sala indisponível nesse horário.";
 				}
 			}
+			else {
+				System.out.println("sala inexistente");
+				return "Sala inexistente";
+			}
+				
+			
+			
 		}
 		//Método para encontrar eventos
-		public boolean encontrarEvento(ClienteObj cliente, String sala, LocalDateTime dataInicio) 
+		public boolean encontrarEvento(String sala, LocalDateTime dataInicio) 
 		{
 			if (cliente.getEventosDoCliente(sala, dataInicio) == null)
 			{
@@ -66,8 +83,16 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 				return true;
 			}
 		}
+		public String obterSalas() throws Exception 
+		{
+			String[] salass = new String[salas.size()];
+			for (int i = 0;i<salas.size();i++) {
+				salass[i] = salas.get(i);
+			}
+			return Arrays.toString(salass);
+		}
 		//Método para obter os eventos do cliente
-		public String obterEventosCliente(ClienteObj cliente) throws Exception
+		public String obterEventosCliente() throws Exception
 		{
 			return cliente.getEventosDoClienteToString();
 		}
@@ -75,9 +100,27 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 		//Método para remover eventos
 		
 		//Método para mostrar a percentagem de ocupação de salas
-		public String percOcupacao() throws Exception
+		public String percOcupacao(String data) throws Exception
 		{
-			return null;
+			String[] datas = data.split("-");
+			ArrayList<Evento> eventosDia = new ArrayList<Evento>();
+			for (int i = 0; i<listaEventos.size();i++) {
+				if (listaEventos.get(i).getHoraInicio().getDayOfMonth() == Integer.parseInt(datas[0]) && 
+					listaEventos.get(i).getHoraInicio().getMonthValue() == Integer.parseInt(datas[1]) &&
+					listaEventos.get(i).getHoraInicio().getYear() == Integer.parseInt(datas[2])) {
+					eventosDia.add(listaEventos.get(i));
+				}
+			}
+			int numeroTotalDeHoras = listaEventos.size()*8;
+			int numeroHorasOcupado = 0;
+			for (int i = 0; i<eventosDia.size();i++) {
+				Duration duracao = Duration.between(eventosDia.get(i).getHoraInicio(),eventosDia.get(i).getHoraFim());
+				int horas = duracao.toHoursPart();
+				numeroHorasOcupado = numeroHorasOcupado + horas;
+			}
+			System.out.println(numeroHorasOcupado);
+			double tempo = numeroHorasOcupado/numeroTotalDeHoras*100;
+			return Double.toString(tempo);
 		}
 		//Método para mostrar o número de reservas efetuadas pelos utilizadores
 		public String consNumReservas() throws Exception
@@ -107,7 +150,7 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 			return null;
 		}
 		//Método para remover eventos da lista de eventos
-		public void removeEvento(ClienteObj cliente, String sala, LocalDateTime dataInicio)
+		public void removeEvento(String sala, LocalDateTime dataInicio)
 		{
 			for (int i = 0; i < listaEventos.size(); i++)
 			{
@@ -117,5 +160,11 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 					cliente.removeEventosDoCliente(sala, dataInicio);
 				}
 			}
+		}
+		
+		public void criarCliente(String nome) throws Exception
+		{
+			
+			cliente = new ClienteObj(nome);
 		}
 }

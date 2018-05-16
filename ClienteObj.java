@@ -1,4 +1,4 @@
-package RMI_Avaliacao;
+package projeto4_SI;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -58,7 +58,6 @@ public class ClienteObj implements Serializable
 	public void addEventosDoCliente(Evento evento)
 	{
 		this.eventosDoCliente.add(evento);
-		System.out.println(eventosDoCliente.toString());
 	}
 	//Método para remover eventos da lista de eventos do cliente
 	public void removeEventosDoCliente(String sala, LocalDateTime dataInicio)

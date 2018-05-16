@@ -1,13 +1,15 @@
-package RMI_Avaliacao;
+package projeto4_SI;
+
 
 import java.io.Serializable;
+
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
 
-import RMI_Avaliacao.Interface;
+import projeto4_SI.Interface;
 
 public class Cliente implements Serializable
 {
@@ -30,7 +32,7 @@ public class Cliente implements Serializable
 			System.out.println("Nome: ");
 			String resposta = scan.nextLine();
 			String responsavel = resposta;
-			ClienteObj cliente = new ClienteObj(responsavel);
+			DEI.criarCliente(responsavel);
 			
 			while (registando) {
 				System.out.print("Deseja:\n"
@@ -44,6 +46,7 @@ public class Cliente implements Serializable
 				
 				//Adicionar um evento a uma sala
 				if (resposta.equals("1")) {
+					System.out.println("As salas disponíveis são: " + DEI.obterSalas());
 					System.out.println("Que sala deseja (LNN)?");
 					resposta = scan.nextLine();
 					String sala = resposta;
@@ -68,13 +71,14 @@ public class Cliente implements Serializable
 					String descricao = resposta;
 
 					//Criar objeto evento através do método adicionaEvento
-					DEI.adicionaEvento(sala,dateTime,finalDateTime,responsavel,descricao,cliente);
+					DEI.adicionaEvento(sala,dateTime,finalDateTime,responsavel,descricao);
 
 				}
 				//Atualizar evento
 				else if (resposta.equals("2")) {
 					//Mostrar os eventos do cliente
-					System.out.println(DEI.obterEventosCliente(cliente));
+					
+					System.out.println(DEI.obterEventosCliente());
 					
 					System.out.println("Sala: ");
 					resposta = scan.nextLine();
@@ -91,22 +95,22 @@ public class Cliente implements Serializable
 					DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 					LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
 
-					boolean encontrar = DEI.encontrarEvento(cliente, sala, dateTime);
+					boolean encontrar = DEI.encontrarEvento(sala, dateTime);
 					System.out.println("SERa?" + encontrar);
 					
 					//Caso o evento exista
 					if(encontrar)
 					{
 						//remove evento
-						DEI.removeEvento(cliente, sala, dateTime);
+						DEI.removeEvento(sala, dateTime);
 						
 						System.out.println("Que sala deseja (LNN)?");
 						resposta = scan.nextLine();
 						sala = resposta;
-						System.out.println("Insira a data em que deseja a sala (aaaa-MM-dd):");
+						System.out.println("Data (aaaa-MM-dd):");
 						resposta = scan.nextLine();
 						str = resposta;
-						System.out.println("A partir de que horas deseja a sala (HH:mm) (Entre as 10h e as 18h)?");
+						System.out.println("Hora de Inicio (HH:mm) (Entre as 10h e as 18h)?");
 						resposta = scan.nextLine();
 						str = str + " " + resposta;
 						//Creates a formatter using the specified pattern.
@@ -123,7 +127,8 @@ public class Cliente implements Serializable
 						String descricao = resposta;
 						
 						//adiciionar evento
-						DEI.adicionaEvento(sala,dateTime,finalDateTime,responsavel,descricao,cliente);
+						
+						System.out.println(DEI.adicionaEvento(sala,dateTime,finalDateTime,responsavel,descricao));
 
 					}
 					else
@@ -136,7 +141,7 @@ public class Cliente implements Serializable
 				else if(resposta.equals("3"))
 				{
 					//Mostrar os eventos do cliente
-					System.out.println(DEI.obterEventosCliente(cliente));
+					System.out.println(DEI.obterEventosCliente());
 					
 					System.out.println("Sala: ");
 					resposta = scan.nextLine();
@@ -149,10 +154,10 @@ public class Cliente implements Serializable
 					LocalDateTime dateTime = LocalDateTime.parse(resposta, formatter);
 					
 					//Caso o evento exista
-					if(DEI.encontrarEvento(cliente, sala, dateTime))
+					if(DEI.encontrarEvento(sala, dateTime))
 					{
 						//remove evento
-						DEI.removeEvento(cliente,sala, dateTime);
+						DEI.removeEvento(sala, dateTime);
 					}
 					else
 					{
@@ -161,7 +166,10 @@ public class Cliente implements Serializable
 				}
 				//Percentagem de ocupação
 				else if (resposta.equals("4")) {
-					;
+					System.out.println("Insira a data que deseja analisar (aaaa-MM-dd): ");
+					resposta = scan.nextLine();
+					String data = resposta;
+					System.out.println("A percentagem de ocupação para o dia escolhido é: " + DEI.percOcupacao(data));
 				}
 				//Consultar o número de reservas efetuadas pelos utilizadores
 				else if (resposta.equals("5")) {

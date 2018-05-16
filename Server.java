@@ -1,5 +1,4 @@
-package RMI_Avaliacao;
-
+package projeto4_SI;
 import java.io.Serializable;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;

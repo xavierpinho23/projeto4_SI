@@ -1,4 +1,4 @@
-package RMI_Avaliacao;
+package projeto4_SI;
 
 import java.rmi.Remote;
 import java.time.LocalDateTime;
@@ -7,11 +7,13 @@ public interface Interface extends Remote
 {
 	//Métodos a que o Cliente tem acesso
 
-	public void adicionaEvento(String sala, LocalDateTime dateTime,LocalDateTime finalDateTime,String responsavel,String descricao, ClienteObj cliente) throws Exception;
-	public String obterEventosCliente(ClienteObj cliente) throws Exception;
-	public boolean encontrarEvento(ClienteObj cliente, String sala, LocalDateTime dataInicio) throws Exception;
-	public void removeEvento(ClienteObj cliente, String sala, LocalDateTime dataInicio) throws Exception;
-	public String percOcupacao() throws Exception;
+	public String adicionaEvento(String sala, LocalDateTime dateTime,LocalDateTime finalDateTime,String responsavel,String descricao) throws Exception;
+	public String obterEventosCliente() throws Exception;
+	public boolean encontrarEvento( String sala, LocalDateTime dataInicio) throws Exception;
+	public void removeEvento( String sala, LocalDateTime dataInicio) throws Exception;
+	public String percOcupacao(String data) throws Exception;
 	public String consNumReservas() throws Exception;
 	public String consNumResPUtiPTem() throws Exception;
+	public void criarCliente(String nome) throws Exception;
+	public String obterSalas() throws Exception;
 }
