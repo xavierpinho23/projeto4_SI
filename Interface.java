@@ -13,7 +13,8 @@ public interface Interface extends Remote
 	public void removeEvento( String sala, LocalDateTime dataInicio) throws Exception;
 	public String percOcupacao(String data) throws Exception;
 	public String consNumReservas() throws Exception;
-	public String consNumResPUtiPTem() throws Exception;
+	public String consNumResPUtiPTem(String responsavel, LocalDateTime dataInicio, LocalDateTime dataFim) throws Exception;
 	public void criarCliente(String nome) throws Exception;
 	public String obterSalas() throws Exception;
+	public void guardarReservas() throws Exception;
 }

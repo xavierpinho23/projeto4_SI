@@ -23,12 +23,10 @@ public class ClienteObj implements Serializable
 	{
 		boolean eventoEncontrado = false;
 		Evento evento = null;
-		////
 		if (eventosDoCliente.isEmpty())
 		{
 			return null;
 		}
-		////
 		for (int i = 0;i<eventosDoCliente.size();i++) 
 		{
 			if (sala.equals(eventosDoCliente.get(i).getSala()) && dataInicio.equals(eventosDoCliente.get(i).getHoraInicio())) 
@@ -41,7 +39,8 @@ public class ClienteObj implements Serializable
 		{
 			return evento;
 		}
-		else {
+		else 
+		{
 			return null;
 		}
 	}
@@ -64,6 +63,11 @@ public class ClienteObj implements Serializable
 	public void addEventosDoCliente(Evento evento)
 	{
 		this.eventosDoCliente.add(evento);
+	}
+	//
+	public ArrayList<Evento> obterListaDeEventos()
+	{
+		return eventosDoCliente;
 	}
 	//Método para remover eventos da lista de eventos do cliente
 	public void removeEventosDoCliente(String sala, LocalDateTime dataInicio)

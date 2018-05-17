@@ -1,4 +1,8 @@
 package RMI_Avaliacao;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -11,12 +15,25 @@ import java.util.Arrays;
 public class ReservasImpl extends UnicastRemoteObject implements Interface, Serializable
 	{
 
+		private static final LocalDateTime DateTime = null;
 		ArrayList<Evento> listaEventos = new ArrayList<Evento>();
+		ArrayList<ClienteObj> listaClientes = new ArrayList<ClienteObj>();
 		ClienteObj cliente;
 		ArrayList<String> salas = new ArrayList<String>(Arrays.asList("A01","A02","A03","B01","B02","B03","C01","C02","C03","D01","D02","D03"));
 		
-		protected ReservasImpl() throws RemoteException
+		public ReservasImpl() throws RemoteException
 		{
+			try
+			{
+				FileInputStream documento = new FileInputStream("reservas.txt");
+				ObjectInputStream doc = new ObjectInputStream(documento);
+				this.listaEventos = (ArrayList<Evento>) doc.readObject();
+				documento.close();						
+			}
+			catch (Exception e)
+			{
+				//não faz nada
+			}
 		}
 		//Método para adicionar eventos
 		public String adicionaEvento(String sala, LocalDateTime dateTime,LocalDateTime finalDateTime,String responsavel,String descricao) throws Exception
@@ -24,6 +41,7 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 			Evento evento = new Evento(sala,dateTime,finalDateTime,responsavel,descricao);
 			boolean adicionar = true;
 			
+			LocalDateTime now = DateTime.now();
 			CharSequence horaMax = "2000-01-01 18:00";
 			CharSequence horaMin = "2000-01-01 10:00";
 			DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
@@ -50,7 +68,8 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 								|| evento.getHoraFim().getHour()>(horaMaxima.getHour())
 								|| evento.getHoraInicio().getHour()<(horaMinima.getHour())
 								|| listaEventos.get(i).getHoraInicio().isEqual(evento.getHoraInicio()) 
-								|| listaEventos.get(i).getHoraFim().isEqual(evento.getHoraFim())) 
+								|| listaEventos.get(i).getHoraFim().isEqual(evento.getHoraFim())
+								|| evento.getHoraFim().isBefore(now)) 
 						{
 							adicionar = false;	
 						}
@@ -66,13 +85,14 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 				}
 				else 
 				{
-					return "Sala indisponível nesse horário.";
+					return "Data escolhida não válida.";
 				}
 			}
 			else 
 			{
 				return "Sala inexistente";
 			}		
+			
 		}
 		//Método para encontrar eventos
 		public boolean encontrarEvento(String sala, LocalDateTime dataInicio) 
@@ -120,17 +140,15 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 			}
 			//Numero total de horas para todas as salas
 			int numeroTotalDeHoras = salas.size()*8;
-			
-			//int numeroTotalDeHoras = listaEventos.size()*8;
-			System.out.println("horas total:" + numeroTotalDeHoras);
-			
 			double numeroHorasOcupado = 0;
-			for (int i = 0; i<eventosDia.size();i++) {
+			
+			for (int i = 0; i<eventosDia.size();i++) 
+			{
 				Duration duracao = Duration.between(eventosDia.get(i).getHoraInicio(),eventosDia.get(i).getHoraFim());
 				double horas = duracao.toHoursPart();
 				numeroHorasOcupado = numeroHorasOcupado + horas;
 			}
-			System.out.println("horas ocupadas no dia:" + numeroHorasOcupado);
+
 			double tempo = (numeroHorasOcupado/numeroTotalDeHoras)*100;
 			return Double.toString(tempo);
 		}
@@ -166,27 +184,44 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 			}
 		}
 		//Método para mostrar o número de reservas de um determinado utilizador num determinado periodo de tempo
-		/*public String consNumResPUtiPTem() throws Exception
+		public String consNumResPUtiPTem(String responsavel, LocalDateTime dataInicio, LocalDateTime dataFim) throws Exception
 		{
-			int[] reservas = new int[listaEventos.size()];
-			String[] responsavel = new String[listaEventos.size()];
+			
 			ArrayList<Evento> listaProvisoria = listaEventos;
+			int contador = 0;
 			String resposta = "";
-			if (listaProvisoria.isEmpty())
+			boolean existe = false;
+			ClienteObj cliente = null;
+
+			for (int i = 0; i<listaClientes.size();i++)
 			{
-				return "Não existem reservas efetuadas. \n";
+				if (listaClientes.get(i).getNome().equals(responsavel))
+				{
+					cliente = listaClientes.get(i);
+					existe = true;
+				}
+
+			}
+			if (existe) 
+			{
+				for (int i = 0; i < cliente.obterListaDeEventos().size();i++)
+				{
+					if (cliente.obterListaDeEventos().get(i).getHoraFim().isBefore(dataFim) && cliente.obterListaDeEventos().get(i).getHoraInicio().isAfter(dataInicio))
+					{
+						contador = contador + 1;
+					}
+
+
+				}
+				return "No período selecionado o " + cliente.getNome() + " tem " + Integer.toString(contador) + " eventos.\n";
+
 			}
 			else
 			{
-				for (int i = 0; i<listaEventos.size();i++) {
-				if (listaEventos.get(i).getHoraInicio().getYear() == Integer.parseInt(datas[0]) && 
-					listaEventos.get(i).getHoraInicio().getMonthValue() == Integer.parseInt(datas[1]) &&
-					listaEventos.get(i).getHoraInicio().getDayOfMonth() == Integer.parseInt(datas[2])) {
-					eventosDia.add(listaEventos.get(i));
-					System.out.println("entrou aqui?");
-				}
+				return "O nome que procurou não existe.";
 			}
-		}*/
+
+		}
 		//Método para remover eventos da lista de eventos
 		public void removeEvento(String sala, LocalDateTime dataInicio)
 		{
@@ -199,10 +234,26 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 				}
 			}
 		}
-		
+
 		public void criarCliente(String nome) throws Exception
 		{
 			
 			cliente = new ClienteObj(nome);
+			listaClientes.add(cliente);
+		}
+
+		public void guardarReservas()
+		{
+			try
+			{
+				FileOutputStream documento = new FileOutputStream("reservas.txt");
+				ObjectOutputStream doc = new ObjectOutputStream(documento);
+				doc.writeObject(this.listaEventos);
+				documento.close();
+			}
+			catch (Exception e)
+			{
+				// não faz nada
+			}
 		}
 }
