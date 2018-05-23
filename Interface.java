@@ -9,7 +9,7 @@ public interface Interface extends Remote
 
 	public String adicionaEvento(String sala, LocalDateTime dateTime,LocalDateTime finalDateTime,String responsavel,String descricao) throws Exception;
 	public String obterEventosCliente() throws Exception;
-	public boolean encontrarEvento( String sala, LocalDateTime dataInicio) throws Exception;
+	public Evento encontrarEvento( String sala, LocalDateTime dataInicio) throws Exception;
 	public void removeEvento( String sala, LocalDateTime dataInicio) throws Exception;
 	public String percOcupacao(String data) throws Exception;
 	public String consNumReservas() throws Exception;
@@ -17,4 +17,5 @@ public interface Interface extends Remote
 	public void criarCliente(String nome) throws Exception;
 	public String obterSalas() throws Exception;
 	public void guardarReservas() throws Exception;
+	public boolean atualizarEvento (Evento evento, String sala, LocalDateTime dataInicio, LocalDateTime dataFim, String descricao) throws Exception;
 }

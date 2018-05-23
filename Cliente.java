@@ -80,36 +80,36 @@ public class Cliente implements Serializable
 							str = str + " " + resposta;
 							//Creates a formatter using the specified pattern.
 							DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-							LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+							LocalDateTime dataInicio = LocalDateTime.parse(str, formatter);
 							System.out.println("Duração da reserva (HH:mm):");
 							resposta = scan.nextLine();
 							String[] str2 = resposta.split(":");
 							//Adicionar a duração à hora de inicio (minutos e horas)
-							LocalDateTime finalDateTime = dateTime.plusMinutes(Integer.parseInt(str2[1]));
-							finalDateTime = finalDateTime.plusHours(Integer.parseInt(str2[0]));
+							LocalDateTime dataFim = dataInicio.plusMinutes(Integer.parseInt(str2[1]));
+							dataFim = dataFim.plusHours(Integer.parseInt(str2[0]));
 
 							System.out.println("Adicione uma descrição ao evento:");
 							resposta = scan.nextLine();
 							String descricao = resposta;
 
 							//Criar objeto evento através do método adicionaEvento
-							System.out.println(DEI.adicionaEvento(sala,dateTime,finalDateTime,responsavel,descricao));
+							System.out.println(DEI.adicionaEvento(sala,dataInicio,dataFim,responsavel,descricao));
 							
-							evento = new Evento(sala,dateTime,finalDateTime,responsavel,descricao);
-							System.out.println("hora fim: " +evento.horaFim );
+							evento = new Evento(sala,dataInicio,dataFim,responsavel,descricao);
 						}
 						//Atualizar evento
 						else if (resposta.equals("2")) 
 						{
-							//Mostrar os eventos do cliente
-							System.out.println(DEI.obterEventosCliente());
 							//Se o cliente não tiver eventos 
 							if (DEI.obterEventosCliente().contains("Não"))
 							{
-								continue;
+								System.out.println("Você não tem eventos.");
 							}
 							else
 							{
+								//Mostrar os eventos do cliente
+								System.out.println(DEI.obterEventosCliente());
+
 								System.out.println("Sala: ");
 								resposta = scan.nextLine();
 								String sala = resposta;
@@ -117,23 +117,25 @@ public class Cliente implements Serializable
 								System.out.println("Data do evento (aaaa-MM-dd)? ");
 								resposta = scan.nextLine();
 								String str = resposta;
+								
 								System.out.println("Horas de início do evento (HH:mm) (Entre as 10h e as 18h)?");
 								resposta = scan.nextLine();
 
 								str = str + " " + resposta;
 								//Creates a formatter using the specified pattern.
 								DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-								LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+								LocalDateTime dataInicio = LocalDateTime.parse(str, formatter);
 
 								//Procurar o evento através da sala e da data de início
-								boolean encontrar = DEI.encontrarEvento(sala, dateTime);
+								Evento eventoAtualizar = DEI.encontrarEvento(sala, dataInicio);
 								
 								//Caso o evento exista
-								if(encontrar)
+								if (eventoAtualizar == null)
 								{
-									//remove evento
-									DEI.removeEvento(sala, dateTime);
-									
+									System.out.println("Evento não encontrado");
+								}
+								else
+								{
 									System.out.println("Que sala deseja (LNN)?");
 									resposta = scan.nextLine();
 									sala = resposta;
@@ -145,27 +147,30 @@ public class Cliente implements Serializable
 									str = str + " " + resposta;
 									//Creates a formatter using the specified pattern.
 									formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-									dateTime = LocalDateTime.parse(str, formatter);
+									dataInicio = LocalDateTime.parse(str, formatter);
 									System.out.println("Duração da reserva (HH:mm):");
 									resposta = scan.nextLine();
 									String[] str2 = resposta.split(":");
 									//Adicionar a duração à hora de inicio (minutos e horas)
-									LocalDateTime finalDateTime = dateTime.plusMinutes(Integer.parseInt(str2[1]));
-									finalDateTime = finalDateTime.plusHours(Integer.parseInt(str2[0]));
+									LocalDateTime dataFim = dataInicio.plusMinutes(Integer.parseInt(str2[1]));
+									dataFim = dataFim.plusHours(Integer.parseInt(str2[0]));
 									System.out.println("Adicione uma descrição ao evento:");
 									resposta = scan.nextLine();
 									String descricao = resposta;
-									
-									//adicionar evento
-									
-									System.out.println(DEI.adicionaEvento(sala,dateTime,finalDateTime,responsavel,descricao));
 
-								}
-								else
-								{
-									System.out.println("O evento não existe.");
-								}
+									boolean atualiza = DEI.atualizarEvento(eventoAtualizar, sala, dataInicio, dataFim, descricao);
+									
+									if(atualiza)
+									{
+										System.out.println("Evento Atualizado com sucesso");
+									}
+									else
+									{
+										System.out.println("Atualização mal executada.");
+									}
+									
 							}				
+						}
 						}
 						//Remover evento
 						else if(resposta.equals("3"))
@@ -191,13 +196,13 @@ public class Cliente implements Serializable
 								str = str + " " + resposta;
 								//Creates a formatter using the specified pattern.
 								DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-								LocalDateTime dateTime = LocalDateTime.parse(str, formatter);
+								LocalDateTime dataInicio = LocalDateTime.parse(str, formatter);
 								
 								//Caso o evento exista
-								if(DEI.encontrarEvento(sala, dateTime))
+								if(DEI.encontrarEvento(sala, dataInicio)!=null)
 								{
 									//remove evento
-									DEI.removeEvento(sala, dateTime);
+									DEI.removeEvento(sala, dataInicio);
 									System.out.println("Evento removido com sucesso.");
 								}
 								else
@@ -294,5 +299,3 @@ public class Cliente implements Serializable
 		}
 	}
 }
-
-

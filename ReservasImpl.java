@@ -19,6 +19,15 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 		ArrayList<Evento> listaEventos = new ArrayList<Evento>();
 		ArrayList<ClienteObj> listaClientes = new ArrayList<ClienteObj>();
 		ClienteObj cliente;
+		//hora maxima
+		CharSequence horaMax = "2000-01-01 18:00";
+		//hora minima
+		CharSequence horaMin = "2000-01-01 10:00";
+		DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+		LocalDateTime horaMaxima = LocalDateTime.parse(horaMax, formatter1);
+		LocalDateTime horaMinima = LocalDateTime.parse(horaMin, formatter1);
+		LocalDateTime now = DateTime.now();
+
 		ArrayList<String> salas = new ArrayList<String>(Arrays.asList("A01","A02","A03","B01","B02","B03","C01","C02","C03","D01","D02","D03"));
 		
 		public ReservasImpl() throws RemoteException
@@ -27,6 +36,7 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 			{
 				FileInputStream documento = new FileInputStream("reservas.txt");
 				ObjectInputStream doc = new ObjectInputStream(documento);
+				this.listaClientes = (ArrayList<ClienteObj>) doc.readObject();
 				this.listaEventos = (ArrayList<Evento>) doc.readObject();
 				documento.close();						
 			}
@@ -41,12 +51,8 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 			Evento evento = new Evento(sala,dateTime,finalDateTime,responsavel,descricao);
 			boolean adicionar = true;
 			
-			LocalDateTime now = DateTime.now();
-			CharSequence horaMax = "2000-01-01 18:00";
-			CharSequence horaMin = "2000-01-01 10:00";
-			DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-			LocalDateTime horaMaxima = LocalDateTime.parse(horaMax, formatter1);
-			LocalDateTime horaMinima = LocalDateTime.parse(horaMin, formatter1);
+
+
 			
 			if (listaEventos.isEmpty() && salas.contains(sala)) 
 			{
@@ -81,7 +87,9 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 					cliente.addEventosDoCliente(evento);
 					listaEventos.add(evento);
 					System.out.println("Evento adicionado");
-					return "Evento adicionado com sucesso";				
+					guardarReservas();
+					return "Evento adicionado com sucesso";	
+					
 				}
 				else 
 				{
@@ -92,19 +100,85 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 			{
 				return "Sala inexistente";
 			}		
+
 			
 		}
 		//Método para encontrar eventos
-		public boolean encontrarEvento(String sala, LocalDateTime dataInicio) 
+		public Evento encontrarEvento(String sala, LocalDateTime dataInicio) 
 		{
-			if (cliente.getEventosDoCliente(sala, dataInicio) == null)
+			Evento evento = cliente.getEventosDoCliente(sala, dataInicio);
+			
+			if (evento == null)
 			{
-				return false;
+				return null;
 			}
 			else 
 			{
-				return true;
+				return evento;
 			}
+		}
+		//Método para atualizar evento
+		public boolean atualizarEvento (Evento evento, String sala, LocalDateTime dataInicio, LocalDateTime dataFim, String descricao)
+		{
+			int index = 0;
+			Evento eventoTemporario = evento;
+			boolean adicionar = true;
+			
+			for (int i = 0; i<listaEventos.size();i++)
+			{
+				if (listaEventos.get(i) == evento)
+				{
+					index = i;
+				}
+			}
+			eventoTemporario.setSala(sala);
+			eventoTemporario.setDescricao(descricao);
+			eventoTemporario.setHoraFim(dataFim);
+			eventoTemporario.setHoraInicio(dataInicio);
+			
+			if (salas.contains(sala))
+				{
+					for (int i=0;i<listaEventos.size();i++) 
+					{
+						//Saltar o index
+						if (i == index)
+						{
+							i++;
+						}
+						if (listaEventos.get(i).getSala().equals(eventoTemporario.getSala())) 
+						{
+							if (listaEventos.get(i).getHoraFim().isAfter(eventoTemporario.getHoraInicio())
+									&& listaEventos.get(i).getHoraInicio().isBefore(eventoTemporario.getHoraFim())
+									|| eventoTemporario.getHoraFim().getHour()>(horaMaxima.getHour())
+									|| eventoTemporario.getHoraInicio().getHour()<(horaMinima.getHour())
+									|| listaEventos.get(i).getHoraInicio().isEqual(eventoTemporario.getHoraInicio()) 
+									|| listaEventos.get(i).getHoraFim().isEqual(eventoTemporario.getHoraFim())
+									|| eventoTemporario.getHoraFim().isBefore(now)) 
+							{
+								adicionar = false;	
+							}
+						}
+					}
+				}
+			else
+			{
+				adicionar = false;
+			}
+			if (adicionar)
+			{
+				listaEventos.get(index).setDescricao(descricao);
+				listaEventos.get(index).setSala(sala);
+				listaEventos.get(index).setHoraFim(dataFim);
+				listaEventos.get(index).setHoraInicio(dataInicio);
+				return true;
+				
+			}
+			else
+			{
+				return false;
+			}
+				
+
 		}
 		//Método para obter as salas
 		public String obterSalas() throws Exception 
@@ -130,12 +204,13 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 			ArrayList<Evento> eventosDia = new ArrayList<Evento>();
 			System.out.println("data: " + datas[0] + datas[1] + datas[2]);
 			
-			for (int i = 0; i<listaEventos.size();i++) {
+			for (int i = 0; i<listaEventos.size();i++) 
+			{
 				if (listaEventos.get(i).getHoraInicio().getYear() == Integer.parseInt(datas[0]) && 
 					listaEventos.get(i).getHoraInicio().getMonthValue() == Integer.parseInt(datas[1]) &&
-					listaEventos.get(i).getHoraInicio().getDayOfMonth() == Integer.parseInt(datas[2])) {
+					listaEventos.get(i).getHoraInicio().getDayOfMonth() == Integer.parseInt(datas[2])) 
+				{
 					eventosDia.add(listaEventos.get(i));
-					System.out.println("entrou aqui?");
 				}
 			}
 			//Numero total de horas para todas as salas
@@ -186,12 +261,10 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 		//Método para mostrar o número de reservas de um determinado utilizador num determinado periodo de tempo
 		public String consNumResPUtiPTem(String responsavel, LocalDateTime dataInicio, LocalDateTime dataFim) throws Exception
 		{
-			
-			ArrayList<Evento> listaProvisoria = listaEventos;
 			int contador = 0;
-			String resposta = "";
 			boolean existe = false;
 			ClienteObj cliente = null;
+			ArrayList<Evento> listaEventosDoCliente = null;
 
 			for (int i = 0; i<listaClientes.size();i++)
 			{
@@ -199,18 +272,19 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 				{
 					cliente = listaClientes.get(i);
 					existe = true;
+					listaEventosDoCliente = cliente.obterListaDeEventos();		
 				}
 
 			}
 			if (existe) 
 			{
-				for (int i = 0; i < cliente.obterListaDeEventos().size();i++)
+				for (int i = 0; i < listaEventosDoCliente.size();i++)
 				{
-					if (cliente.obterListaDeEventos().get(i).getHoraFim().isBefore(dataFim) && cliente.obterListaDeEventos().get(i).getHoraInicio().isAfter(dataInicio))
+					
+					if (listaEventosDoCliente.get(i).getHoraFim().isBefore(dataFim) && listaEventosDoCliente.get(i).getHoraInicio().isAfter(dataInicio))
 					{
 						contador = contador + 1;
 					}
-
 
 				}
 				return "No período selecionado o " + cliente.getNome() + " tem " + Integer.toString(contador) + " eventos.\n";
@@ -231,15 +305,34 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 				{
 					listaEventos.remove(i);
 					cliente.removeEventosDoCliente(sala, dataInicio);
+
+
 				}
 			}
+			guardarReservas();
 		}
 
 		public void criarCliente(String nome) throws Exception
 		{
-			
-			cliente = new ClienteObj(nome);
-			listaClientes.add(cliente);
+			boolean existe = false;
+
+			for (int i = 0; i< listaClientes.size();i++)
+			{
+				if (listaClientes.get(i).getNome().equals(nome))
+				{
+					cliente = listaClientes.get(i);
+					existe = true;
+					break;
+				}
+
+			}
+			if (!existe)
+			{
+				cliente = new ClienteObj(nome);
+				listaClientes.add(cliente);
+			}
+
+			guardarReservas();
 		}
 
 		public void guardarReservas()
@@ -248,6 +341,7 @@ public class ReservasImpl extends UnicastRemoteObject implements Interface, Seri
 			{
 				FileOutputStream documento = new FileOutputStream("reservas.txt");
 				ObjectOutputStream doc = new ObjectOutputStream(documento);
+				doc.writeObject(this.listaClientes);
 				doc.writeObject(this.listaEventos);
 				documento.close();
 			}
