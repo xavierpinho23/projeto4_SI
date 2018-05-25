@@ -6,16 +6,11 @@ import java.time.LocalDateTime;
 public interface Interface extends Remote 
 {
 	//Métodos a que o Cliente tem acesso
-
-	public String adicionaEvento(String sala, LocalDateTime dateTime,LocalDateTime finalDateTime,String responsavel,String descricao) throws Exception;
-	public String obterEventosCliente() throws Exception;
-	public Evento encontrarEvento( String sala, LocalDateTime dataInicio) throws Exception;
-	public void removeEvento( String sala, LocalDateTime dataInicio) throws Exception;
+	public String adicionaEvento(String sala, String dateTime,String[] duracao,String responsavel,String descricao) throws Exception;
+	public String removeEvento( String sala, String dataInicio) throws Exception;
 	public String percOcupacao(String data) throws Exception;
 	public String consNumReservas() throws Exception;
-	public String consNumResPUtiPTem(String responsavel, LocalDateTime dataInicio, LocalDateTime dataFim) throws Exception;
+	public String consNumResPUtiPTem(String responsavel, String dataInicio, String dataFim) throws Exception;
 	public void criarCliente(String nome) throws Exception;
-	public String obterSalas() throws Exception;
-	public void guardarReservas() throws Exception;
-	public boolean atualizarEvento (Evento evento, String sala, LocalDateTime dataInicio, LocalDateTime dataFim, String descricao) throws Exception;
+	public String atualizarEvento(String salaAntiga,String dataInicioAntiga,String salaNova,String dataInicioNova,String[] duracao,String descricao) throws Exception;
 }

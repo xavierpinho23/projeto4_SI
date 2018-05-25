@@ -4,16 +4,15 @@ import java.time.LocalDateTime;
 
 public class Evento implements Serializable
 {
-
-	//private static final long serialVersionUID = 1L;
-	LocalDateTime horaInicio;
-	LocalDateTime horaFim;
-	String responsavel;
-	String descricao;
-	String sala;
+	private LocalDateTime horaInicio;
+	private LocalDateTime horaFim;
+	private String responsavel;
+	private String descricao;
+	private String sala;
 	
 	//Construtor Evento
-	public Evento(String sala, LocalDateTime horaInicio, LocalDateTime horaFim, String responsavel, String descricao) {
+	public Evento(String sala, LocalDateTime horaInicio, LocalDateTime horaFim, String responsavel, String descricao) 
+	{
 		this.horaInicio=horaInicio;
 		this.horaFim=horaFim;
 		this.responsavel=responsavel;
@@ -57,12 +56,6 @@ public class Evento implements Serializable
 	{
 		return responsavel;
 	}
-	//Método para alterar o responsável
-	public void setResponsavel(String responsavel)
-	{
-		this.responsavel = responsavel;
-	}
-
 	//Método para aceder à descrição
 	public String getDescricao()
 	{
